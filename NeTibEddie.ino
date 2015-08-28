@@ -24,6 +24,19 @@ unsigned long TimeNow = millis();
 unsigned long ledTimeB4 = 0;
 unsigned long ledInterval = 1000;
 
+// Initiate ledFlicker pins for LEDs [Need to be PWM pins]
+const int ledFlicker1 = 3;
+const int ledFlicker2 = 5;
+const int ledFlicker3 = 6;
+
+// Initiate ledFlicker variables for time of last change, and random interval time to change light level
+unsigned long ledFlickerTimeB41 = 0;
+unsigned long ledFlickerTimeB42 = 0;
+unsigned long ledFlickerTimeB43 = 0;
+unsigned long ledFlickerInterval1 = random(100);
+unsigned long ledFlickerInterval2 = random(100);
+unsigned long ledFlickerInterval3 = random(100);
+
 
 void setup(){
   
@@ -32,6 +45,10 @@ void setup(){
   pinMode(ledBlink2, OUTPUT);
   pinMode(ledBlink3, OUTPUT);
   pinMode(ledBlink4, OUTPUT);
+  // Setup ledFlicker pins to be outputs
+  pinMode(ledFlicker1, OUTPUT);
+  pinMode(ledFlicker2, OUTPUT);
+  pinMode(ledFlicker3, OUTPUT);
 }
 
 
@@ -39,7 +56,7 @@ void setup(){
 void loop(){
   
   ledBlink();
-//  ledFlicker();      <<<< COMING SOON >>>>
+  ledFlicker();
 //  rgbCrossfade();    <<<< COMING SOON >>>>
 }
 
@@ -69,5 +86,42 @@ void ledBlink(){
     digitalWrite(ledBlink2, ledStateTwo);
     digitalWrite(ledBlink3, ledStateOne);
     digitalWrite(ledBlink4, ledStateTwo);
+  }
+}
+
+
+// ledFlicker Function
+// Use random values, and add 135 so Leds are always over 50% duty cycle
+// Create random delay to slow flicker effect
+void ledFlicker(){
+  
+  // Check the time, see if it's time to flicker, flicker, record the time, and reassign the interval
+  TimeNow = millis();
+  
+  // ledFlicker1
+  if (TimeNow - ledFlickerTimeB41 > ledFlickerInterval1){
+    ledFlickerTimeB41 = TimeNow;
+    ledFlickerInterval1 = random(100);
+    
+   // Flicker the Led randomly from 50% to 100% duty cycle
+    analogWrite(ledFlicker1, random(100, 255));
+  } 
+    
+  // ledFlicker2
+  if (TimeNow - ledFlickerTimeB42 > ledFlickerInterval2){
+    ledFlickerTimeB42 = TimeNow;
+    ledFlickerInterval2 = random(100);
+    
+   // Flicker the Led randomly from 50% to 100% duty cycle
+    analogWrite(ledFlicker2, random(100, 255));
+  }
+  
+    // ledFlicker3
+  if (TimeNow - ledFlickerTimeB43 > ledFlickerInterval3){
+    ledFlickerTimeB43 = TimeNow;
+    ledFlickerInterval3 = random(100);
+    
+   // Flicker the Led randomly from 50% to 100% duty cycle
+    analogWrite(ledFlicker3, random(100, 255));
   }
 }
