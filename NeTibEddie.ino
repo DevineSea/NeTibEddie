@@ -8,21 +8,42 @@ ledBlink, xMas tree blinking effect, ON-OFF-ON-OFF [second set of lights opposit
 ledFlicker, Gas light/candle effect for lamps with randomized flickering.
 rgbCrossfade, Church Lights colour changing effects. Includes Button with Debounce & LED for mode indication.
 
-June 2014, David Wood
+User Interfaces:
+Manual to Automatic modes for rgbCrossfade
+Red Green Blue Pot control of rgbCrossfade
+[Coming Soon] ledBlink mode changes
+
+ShiftOUT, addressing all LEDs for varying effects and flashing sequences
+Possition 8H        7G       6F      5E     4D    3C   2B  1A
+Decimal   10000000  1000000  100000  10000  1000  100  10  1
+Binary    128       64       32      16     8     4    2   1
+
+Map for address 1 = 85
+H G F E D C B A
+0 1 0 1 0 1 0 1
+
+Map for address 2 = 170
+H G F E D C B A
+1 0 1 0 1 0 1 0
+
+June 2015, David Wood
 */
 
-// Initiate ledBlink pins for Leds
-const int ledBlink1 = 13;
-const int ledBlink2 = 12;
-const int ledBlink3 = 8;
-const int ledBlink4 = 7;
+// Initiate ledBlink pins for LEDs and Shift Register 74HC595
+const int ledBlinkLed = 13;
+const int ledBlinkLatch = 8;
+const int ledBlinkClock = 7;
+const int ledBlinkData = 12;
+
+// Initiate ledBlink Variable for LED set 1 on 74HC595
+int ledBlinkAddress1 = 85;
+int ledBlinkAddress2 = 170;
 
 // Initiate ledBlink Variables for Led State, time of last change and the Interval time to change states
-int ledStateOne = LOW;
-int ledStateTwo = HIGH;
+int ledBlinkState = LOW;
 unsigned long timeNow = millis();
-unsigned long ledTimeB4 = 0;
-unsigned long ledInterval = 1000;
+unsigned long ledBlinkTimeB4 = 0;
+unsigned long ledBlinkInterval = 1000;
 
 // Initiate ledFlicker pins for LEDs [Need to be PWM pins]
 const int ledFlicker1 = 3;
@@ -71,10 +92,10 @@ long debounceDelay = 50;
 void setup(){
   
   // Setup ledBlink pins to be outputs
-  pinMode(ledBlink1, OUTPUT);
-  pinMode(ledBlink2, OUTPUT);
-  pinMode(ledBlink3, OUTPUT);
-  pinMode(ledBlink4, OUTPUT);
+  pinMode(ledBlinkLed, OUTPUT);
+  pinMode(ledBlinkLatch, OUTPUT);
+  pinMode(ledBlinkClock, OUTPUT);
+  pinMode(ledBlinkData, OUTPUT);
   // Setup ledFlicker pins to be outputs
   pinMode(ledFlicker1, OUTPUT);
   pinMode(ledFlicker2, OUTPUT);
@@ -102,29 +123,42 @@ void loop(){
 
 // ledBlink function
 void ledBlink(){
+
+  // Light the tree top LED
+  digitalWrite(ledBlinkLed, HIGH);
   
   // Check the time, see if it's time to blink, blink, change the state and record the time
   timeNow = millis();
   
-  if (timeNow - ledTimeB4 > ledInterval){
-    ledTimeB4 = timeNow;
+  if (timeNow - ledBlinkTimeB4 > ledBlinkInterval){
+    ledBlinkTimeB4 = timeNow;
     
     // if the Led is off turn it on and vice-versa
-    if (ledStateOne == LOW)
-    ledStateOne = HIGH;
-    else
-    ledStateOne = LOW;
+    if (ledBlinkState == LOW){
+    ledBlinkState = HIGH;
     
-    if (ledStateTwo == HIGH)
-    ledStateTwo = LOW;
-    else
-    ledStateTwo = HIGH;
-        
-    // set the Led's with the ledSate
-    digitalWrite(ledBlink1, ledStateOne);
-    digitalWrite(ledBlink2, ledStateTwo);
-    digitalWrite(ledBlink3, ledStateOne);
-    digitalWrite(ledBlink4, ledStateTwo);
+    // take the latchPin low so the LEDs don't change while sending bits
+    digitalWrite(ledBlinkLatch, LOW);
+  
+    //ShiftOUT address 1
+    shiftOut(ledBlinkData, ledBlinkClock, MSBFIRST, ledBlinkAddress1);
+    
+    // take latchPin high to light up the LEDs
+    digitalWrite(ledBlinkLatch, HIGH);  
+    }
+    
+    else{
+    ledBlinkState = LOW;
+    
+    // take the latchPin low so the LEDs don't change while sending bits
+    digitalWrite(ledBlinkLatch, LOW);
+  
+    //ShiftOUT address 2
+    shiftOut(ledBlinkData, ledBlinkClock, MSBFIRST, ledBlinkAddress2);
+    
+    // take latchPin high to light up the LEDs
+    digitalWrite(ledBlinkLatch, HIGH);  
+    }
   }
 }
 
