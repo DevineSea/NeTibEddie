@@ -164,7 +164,7 @@ void ledBlink(){
 
 
 // ledFlicker Function
-// Use random values, and add 135 so Leds are always over 50% duty cycle
+// Use random values, from 100 to 255, so Leds are between 40% and 100% duty cycle
 // Create random delay to slow flicker effect
 void ledFlicker(){
   
@@ -176,7 +176,7 @@ void ledFlicker(){
     ledFlickerTimeB41 = timeNow;
     ledFlickerInterval1 = random(100);
     
-   // Flicker the Led randomly from 50% to 100% duty cycle
+   // Flicker the Led randomly from 40% to 100% duty cycle
     analogWrite(ledFlicker1, random(100, 255));
   } 
     
@@ -185,7 +185,7 @@ void ledFlicker(){
     ledFlickerTimeB42 = timeNow;
     ledFlickerInterval2 = random(100);
     
-   // Flicker the Led randomly from 50% to 100% duty cycle
+   // Flicker the Led randomly from 40% to 100% duty cycle
     analogWrite(ledFlicker2, random(100, 255));
   }
   
@@ -194,7 +194,7 @@ void ledFlicker(){
     ledFlickerTimeB43 = timeNow;
     ledFlickerInterval3 = random(100);
     
-   // Flicker the Led randomly from 50% to 100% duty cycle
+   // Flicker the Led randomly from 40% to 100% duty cycle
     analogWrite(ledFlicker3, random(100, 255));
   }
 }
