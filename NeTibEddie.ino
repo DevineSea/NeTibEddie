@@ -65,7 +65,7 @@ const int rgbBlu = 9;
 
 // Initiate rgbCrossfade variables for time of last change, and interval time to change light level
 unsigned long rgbTimeB4 = 0;
-unsigned long rgbInterval = 3000;
+unsigned long rgbInterval = 5000;
 unsigned long rgbFadeTimeB4 = 0;
 unsigned long rgbFadeInterval = 10;
 
