@@ -48,7 +48,7 @@ LEDs flicker using pulse width modulation with random intervals.
 ### rgbCrossfade.
 RGB LED light colour fader for church lighting effects. This function also requires PWM pins. A momentary button allows for mode changes between automatic and manual function.    
 
-Currently in automatic mode the system picks at random (0 to 255) a new value for each channel (red, green, & blue) every 3000 millis (3 seconds), and changes colour. In a future update this change is to be smoothed out for a more gradual transition.   
+In automatic mode the system picks at random (0 to 255) a new value for each channel (red, green, & blue) every 5000 millis (5 seconds - or near enough), and changes colour. The change is smoothed out for a more gradual transition by slowly incrementing the change (1 step every 10 millis).   
 
 In manual mode the system reads the values of 3 potentiometers and assigns this to the rgb LED allowing manual adjustment of the light colour. The value read from the pots is divided by four as the analog read gives an integer value between 0-1023 while the duty cycle for the LED's requires an output between 0-255. 
 
