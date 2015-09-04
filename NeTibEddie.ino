@@ -1,5 +1,5 @@
 /*
-N NeTibEddie vAlpha
+N NeTibEddie vBeta
 
 Lighting effects controller for Nscale Model Railroad
 
@@ -26,7 +26,7 @@ Map for address 2 = 170
 H G F E D C B A
 1 0 1 0 1 0 1 0
 
-June 2015, David Wood
+Sept 2015, David Wood
 */
 
 // Initiate ledBlink pins for LEDs and Shift Register 74HC595
@@ -59,13 +59,24 @@ unsigned long ledFlickerInterval2 = random(100);
 unsigned long ledFlickerInterval3 = random(100);
 
 // Initiate rgbCrossfade pins for Leds [Need to be PWM pins]
-const int rgbCrossRed = 11;
-const int rgbCrossGrn = 10;
-const int rgbCrossBlu = 9;
+const int rgbRed = 11;
+const int rgbGrn = 10;
+const int rgbBlu = 9;
 
 // Initiate rgbCrossfade variables for time of last change, and interval time to change light level
 unsigned long rgbTimeB4 = 0;
-unsigned long rgbInterval = 3000;
+unsigned long rgbInterval = 5000;
+unsigned long rgbFadeTimeB4 = 0;
+unsigned long rgbFadeInterval = 10;
+
+// Initiate assignable values for current & next rgb colour mix.
+int rgbRedOld = 0;
+int rgbGrnOld = 0;
+int rgbBluOld = 0;
+
+int rgbRedNew = random(0, 255);
+int rgbGrnNew = random(0, 255);
+int rgbBluNew = random(0, 255);
 
 // Initiate rgbCrossfade variables for manual operation
 int redPot;
@@ -101,9 +112,9 @@ void setup(){
   pinMode(ledFlicker2, OUTPUT);
   pinMode(ledFlicker3, OUTPUT);
   // Setup rgbCrossfade pins to be outputs
-  pinMode(rgbCrossRed, OUTPUT);
-  pinMode(rgbCrossGrn, OUTPUT);
-  pinMode(rgbCrossBlu, OUTPUT);
+  pinMode(rgbRed, OUTPUT);
+  pinMode(rgbGrn, OUTPUT);
+  pinMode(rgbBlu, OUTPUT);
   // Setup DeBounce pins
   pinMode(buttonPin, INPUT);
   pinMode(buttonLed, OUTPUT);
@@ -242,19 +253,58 @@ void rgbCrossfade(){
   
   // when the button is not active run automatic mode   
   if (buttonLedState == LOW){
-    
+  
   // Check the time, see if it's time to change colour and change, record the time.
   timeNow = millis();
   
+  // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
   if (timeNow - rgbTimeB4 > rgbInterval){
     rgbTimeB4 = timeNow; 
   
-    // Change the colour to a new random colour
-    analogWrite(rgbCrossRed, random(0, 255));
-    analogWrite(rgbCrossGrn, random(0, 255));
-    analogWrite(rgbCrossBlu, random(0, 255));
+    // Pick new random colours for the RGB LEDs
+    rgbRedNew = random(0, 255);
+    rgbGrnNew = random(0, 255);
+    rgbBluNew = random(0, 255);
     }
-  }
+    
+    // When Red LED colours have changed, gentally fade to the new colour
+  if (rgbRedOld != rgbRedNew || rgbGrnOld != rgbGrnNew || rgbBluOld != rgbBluNew){
+    
+    // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
+    if (timeNow - rgbFadeTimeB4 > rgbFadeInterval){
+      rgbFadeTimeB4 = timeNow; 
+      
+      // Check and Change Red LED on step up or down
+       if (rgbRedOld < rgbRedNew){
+         ++ rgbRedOld;
+         analogWrite(rgbRed, rgbRedOld);
+       }
+       if (rgbRedOld > rgbRedNew){
+         -- rgbRedOld;
+         analogWrite(rgbRed, rgbRedOld);
+       }
+       
+       // Check and Change Green LED on step up or down
+       if (rgbGrnOld < rgbGrnNew){
+         ++ rgbGrnOld;
+         analogWrite(rgbGrn, rgbGrnOld);
+       }
+       if (rgbGrnOld > rgbGrnNew){
+         -- rgbGrnOld;
+         analogWrite(rgbGrn, rgbGrnOld);
+       }
+       
+       // Check and Change Blue LED on step up or down
+       if (rgbBluOld < rgbBluNew){
+         ++ rgbBluOld;
+         analogWrite(rgbBlu, rgbBluOld);
+       }
+       if (rgbBluOld > rgbBluNew){
+         -- rgbBluOld;
+         analogWrite(rgbBlu, rgbBluOld);
+       }
+      }
+    }
   
   else {
     // Read the Pot levels, divide by 4 for light levels
@@ -265,10 +315,11 @@ void rgbCrossfade(){
     bluPot = analogRead(A2);
     bluLed = bluPot / 4;
     
-          
+    
     // Change rgbCrossfade Leds Colour
-    analogWrite(rgbCrossRed, redLed);
-    analogWrite(rgbCrossGrn, grnLed);
-    analogWrite(rgbCrossBlu, bluLed);
+    analogWrite(rgbRed, redLed);
+    analogWrite(rgbGrn, grnLed);
+    analogWrite(rgbBlu, bluLed);
   }
+ }
 }
