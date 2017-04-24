@@ -4,9 +4,9 @@ NeTibEddie is a Lighting effects controller for Nscale Model Railroad using Ardu
 
 ### Primary Functions:  
 
-1. LED blinking function [ledBlink], for flashing x-mas tree effects
-2. LED flickering function [ledFlicker], for flickering LEDs like gas lamps and/or candles
-3. LED RGB Crossfading function [rgbCrossfade], for changing an RGB LED colour in a church
+1. LED blinking functions ledBlink & ledSolid, for x-mas tree effects
+2. LED flickering function ledFlicker, for flickering LEDs like gas lamps and/or candles
+3. LED RGB Crossfading function rgbCrossfade, for changing an RGB LED colour in a church
 
 ### Functions in more detail:  
 
@@ -20,7 +20,7 @@ ShiftOUT, addressing all LEDs for varying effects and flashing sequences
     Decimal   10000000  1000000  100000  10000   1000    100    10     1  
     Binary    128       64       32      16      8       4      2      1  
 
-Current Shift-Out Values for basic blinking function:  
+Shift-Out Values for ledBlink function:  
 
 1st 1000 millis  
 
@@ -33,6 +33,12 @@ Current Shift-Out Values for basic blinking function:
     Position  8H    7G    6F    5E    4D    3C    2B    1A  
     State     0     1     0     1     0     1     0     1    
     Value           64          16          4           1   = 170  
+    
+Shift-Out Values for ledSolid function:  
+
+    Position  8H    7G    6F    5E    4D    3C    2B    1A  
+    State     1     1     1     1     1     1     1     1  
+    Value     128   64    32   16     8     4     2     1    = 255  
 
 More effects coming soon (requires additional button input to select).
 
