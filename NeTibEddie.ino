@@ -316,8 +316,6 @@ void rgbCrossfadeAuto(){
     analogWrite(rgbRed, redLed);
     analogWrite(rgbGrn, grnLed);
     analogWrite(rgbBlu, bluLed);
-  }
- }
 }
 
 
