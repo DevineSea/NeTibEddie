@@ -42,6 +42,16 @@ Shift-Out Values for ledSolid function:
 
 More effects coming soon (requires additional button input to select).
 
+### buttonRead
+Uses a button read function that runs to check voltage levels coming from the voltage ladder (voltage divider) for 2 buttons.
+Functions are divided into seperate parts and run depending on the state set by the button read function
+
+Button resistor and values
+
+    2K resistor from 5v to switch resistor line.
+    One:          0.00v      0 @ 8 bit      0 @ 10 bit
+    Two:   330R   0.71v     36 @ 8 bit    145 @ 10 bit
+
 ### ledFlicker.
 Gas lamp and/or candle flickering effect.
 This is managed using PWM pins on the Arduino. 
@@ -58,5 +68,7 @@ In automatic mode the system picks at random (0 to 255) a new value for each cha
 
 In manual mode the system reads the values of 3 potentiometers and assigns this to the rgb LED allowing manual adjustment of the light colour. The value read from the pots is divided by four as the analog read gives an integer value between 0-1023 while the duty cycle for the LED's requires an output between 0-255. 
 
-### buttonRead.
-A new function is required to allow 2 buttons on a voltage divider (ladder) to be read for selecting modes in ledBlink and rgbCrossfade.  
+### User Interfaces
+- Button for ledBlink & ledSolid function selection
+- Button for rgbCrossfadeAuto & rgbCrossfadeMan function selection
+- Red, Green, Blue, pots for Managing manual colour inputs to rgbCrossfadeMan function
