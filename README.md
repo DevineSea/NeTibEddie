@@ -40,7 +40,7 @@ Shift-Out Values for ledSolid function:
     State     1     1     1     1     1     1     1     1  
     Value     128   64    32   16     8     4     2     1    = 255  
 
-More effects coming soon (requires additional button input to select).
+More effects coming soon.
 
 ### buttonRead
 Uses a button read function that runs to check voltage levels coming from the voltage ladder (voltage divider) for 2 buttons.
