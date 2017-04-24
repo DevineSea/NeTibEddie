@@ -26,7 +26,7 @@ Map for address 2 = 170
 H G F E D C B A
 1 0 1 0 1 0 1 0
 
-Sept 2015, David Wood
+April 2017, David Wood
 */
 
 // Initiate ledBlink pins for LEDs and Shift Register 74HC595
@@ -35,9 +35,12 @@ const int ledBlinkLatch = 8;
 const int ledBlinkClock = 7;
 const int ledBlinkData = 12;
 
-// Initiate ledBlink Variable for LED set 1 on 74HC595
+// Initiate ledBlink Variable for LEDs on 74HC595
 int ledBlinkAddress1 = 85;
 int ledBlinkAddress2 = 170;
+
+// Initiate ledSolid Variable for LEDs on 74HC595
+int ledSolidAddress1 = 255;
 
 // Initiate ledBlink Variables for Led State, time of last change and the Interval time to change states
 int ledBlinkState = LOW;
@@ -171,6 +174,22 @@ void ledBlink(){
     digitalWrite(ledBlinkLatch, HIGH);  
     }
   }
+}
+
+// ledSolid function
+void ledSolid(){
+
+  // Light the tree top LED
+  digitalWrite(ledBlinkLed, HIGH);
+  
+  // take the latchPin low so the LEDs don't change while sending bits
+  digitalWrite(ledBlinkLatch, LOW);
+  
+  //ShiftOUT address 1
+  shiftOut(ledBlinkData, ledBlinkClock, MSBFIRST, ledSolidAddress1);
+    
+  // take latchPin high to light up the LEDs
+  digitalWrite(ledBlinkLatch, HIGH);  
 }
 
 
