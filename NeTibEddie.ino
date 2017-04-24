@@ -65,20 +65,6 @@ int redLed;
 int grnLed;
 int bluLed;
 
-// Initiate DeBounce button Constants
-const int buttonPin = 2;    // the number of the pushbutton pin
-const int buttonLed = 4;      // the number of the LED pin
-
-// Initiate Variables for DeBounce
-int buttonLedState = LOW;   // the current state of the output pin
-int buttonState;             // the current reading from the input pin
-int lastButtonState = HIGH;   // the previous reading from the input pin
-
-// Initiate DeBounce variables for time of last change, and interval time to ignor noise
-long debounceTimeB4 = 0;
-long debounceDelay = 50;
-
-
 void setup(){
   
   // Setup ledBlink pins to be outputs
@@ -94,11 +80,6 @@ void setup(){
   pinMode(rgbRed, OUTPUT);
   pinMode(rgbGrn, OUTPUT);
   pinMode(rgbBlu, OUTPUT);
-  // Setup DeBounce pins
-  pinMode(buttonPin, INPUT);
-  pinMode(buttonLed, OUTPUT);
-  // set deBounce LED initial state
-  digitalWrite(buttonLed, buttonLedState);
 }
 
 
@@ -107,7 +88,7 @@ void loop(){
   
   ledBlink();
   ledFlicker();
-  rgbCrossfade();
+  rgbCrossfadeAuto();
 }
 
 
@@ -206,48 +187,8 @@ void ledFlicker(){
 }
 
 
-// rgbCrossfade function
-void rgbCrossfade(){
-  
-  // DeBounce Button System
-  // read the state of the switch into a local variable:
-  int reading = digitalRead(buttonPin);
-
-  // check to see if you just pressed the button
-  // (i.e. the input went from LOW to HIGH),  and you've waited
-  // long enough since the last press to ignore any noise:  
-
-  // If the switch changed, due to noise or pressing:
-  if (reading != lastButtonState) {
-    // reset the debouncing timer
-    debounceTimeB4 = millis();
-  }
- 
-  if ((millis() - debounceTimeB4) > debounceDelay) {
-    // whatever the reading is at, it's been there for longer
-    // than the debounce delay, so take it as the actual current state:
-
-    // if the button state has changed:
-    if (reading != buttonState) {
-      buttonState = reading;
-
-      // only toggle the LED if the new button state is HIGH
-      if (buttonState == HIGH) {
-        buttonLedState = !buttonLedState;
-      }
-    }
-  }
- 
-  // set the LED:
-  digitalWrite(buttonLed, buttonLedState);
-
-  // save the reading.  Next time through the loop,
-  // it'll be the lastButtonState:
-  lastButtonState = reading;
-  
-  
-  // when the button is not active run automatic mode   
-  if (buttonLedState == LOW){
+// rgbCrossfadeAuto function
+void rgbCrossfadeAuto(){
   
   // Check the time, see if it's time to change colour and change, record the time.
   timeNow = millis();
@@ -262,7 +203,7 @@ void rgbCrossfade(){
     rgbBluNew = random(0, 255);
     }
     
-    // When Red LED colours have changed, gentally fade to the new colour
+    // When LED colours have changed, gentally fade to the new colour
   if (rgbRedOld != rgbRedNew || rgbGrnOld != rgbGrnNew || rgbBluOld != rgbBluNew){
     
     // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
@@ -300,21 +241,28 @@ void rgbCrossfade(){
        }
       }
     }
-  
-  else {
-    // Read the Pot levels, divide by 4 for light levels
-    redPot = analogRead(A0);
-    redLed = redPot / 4;
-    grnPot = analogRead(A1);
-    grnLed = grnPot / 4;
-    bluPot = analogRead(A2);
-    bluLed = bluPot / 4;
-    
-    
+
     // Change rgbCrossfade Leds Colour
     analogWrite(rgbRed, redLed);
     analogWrite(rgbGrn, grnLed);
     analogWrite(rgbBlu, bluLed);
   }
  }
+}
+
+
+// rgbCrossfadeMan function
+void rgbCrossfadeMan(){
+  // Read the Pot levels, divide by 4 for light levels
+  redPot = analogRead(A0);
+  redLed = redPot / 4;
+  grnPot = analogRead(A1);
+  grnLed = grnPot / 4;
+  bluPot = analogRead(A2);
+  bluLed = bluPot / 4;
+  
+  // Change rgbCrossfade Leds Colour
+  analogWrite(rgbRed, redLed);
+  analogWrite(rgbGrn, grnLed);
+  analogWrite(rgbBlu, bluLed);
 }
