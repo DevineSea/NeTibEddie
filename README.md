@@ -10,7 +10,7 @@ NeTibEddie is a Lighting effects controller for Nscale Model Railroad using Ardu
 
 ### Functions in more detail:  
 
-### ledBlink.
+### ledBlink & ledSolid.
 Xmas tree light blinking effects.
 This is managed using a shift out register freeing up digital pins on the Arduino. This will also allow for the future addition of various different blinking effects controlled by a momentary button on a voltage ladder. Mode button coming soon.  
 
