@@ -1,30 +1,6 @@
 /*
 N NeTibEddie vBeta
-
 Lighting effects controller for Nscale Model Railroad
-
-Primary Functions:
-ledBlink, xMas tree blinking effect, ON-OFF-ON-OFF [second set of lights opposite OFF-ON-OFF-ON] sort of thing.
-ledFlicker, Gas light/candle effect for lamps with randomized flickering.
-rgbCrossfade, Church Lights colour changing effects. Includes Button with Debounce & LED for mode indication.
-
-User Interfaces:
-Manual to Automatic modes for rgbCrossfade
-Red Green Blue Pot control of rgbCrossfade
-[Coming Soon] ledBlink mode changes
-
-ShiftOUT, addressing all LEDs for varying effects and flashing sequences
-Possition 8H        7G       6F      5E     4D    3C   2B  1A
-Decimal   10000000  1000000  100000  10000  1000  100  10  1
-Binary    128       64       32      16     8     4    2   1
-
-Map for address 1 = 85
-H G F E D C B A
-0 1 0 1 0 1 0 1
-
-Map for address 2 = 170
-H G F E D C B A
-1 0 1 0 1 0 1 0
 
 April 2017, David Wood
 */
