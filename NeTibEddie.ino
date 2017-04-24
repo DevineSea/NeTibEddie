@@ -24,6 +24,25 @@ unsigned long timeNow = millis();
 unsigned long ledBlinkTimeB4 = 0;
 unsigned long ledBlinkInterval = 1000;
 
+// Initiate timing variables and constants for buttonRead function
+unsigned long btnFtnInterval = 2000;
+unsigned long btnOneFtnOneTimeB4 = 0;
+unsigned long btnOneFtnTwoTimeB4 = 0;
+unsigned long btnTwoFtnOneTimeB4 = 0;
+unsigned long btnTwoFtnTwoTimeB4 = 0;
+unsigned long btnDebounceTimeB4 = 0;
+unsigned long btnDebounceDelay = 200;
+
+// Initiate button variables and constants for buttonRead function
+int btnOne = 0;
+int btnTwo = 145;
+int btnVolts = 1024;
+const int btnTollerance = 50;
+
+// Initiate button State variables
+int btnOneState = 1;
+int btnTwoState = 1;
+
 // Initiate ledFlicker pins for LEDs [Need to be PWM pins]
 const int ledFlicker1 = 3;
 const int ledFlicker2 = 5;
@@ -86,9 +105,28 @@ void setup(){
 // Main Program, run functions. 
 void loop(){
   
-  ledBlink();
-  ledFlicker();
-  rgbCrossfadeAuto();
+  // Run button read function
+  buttonRead();
+  
+  // Button One mode selection and run ledBlink or ledSolid
+  switch (btnOneState){
+    case 1:
+    ledBlink();
+    break;
+    case 2:
+    ledSolid();
+    break;
+  }
+  
+  // Button Two mode selection and run rgbCrossfadeAuto or rgbCrossfadeMan
+  switch (btnTwoState){
+    case 1:
+    rgbCrossfadeAuto();
+    break;
+    case 2:
+    rgbCrossfadeMan();
+    break;
+    }
 }
 
 
@@ -133,6 +171,7 @@ void ledBlink(){
   }
 }
 
+
 // ledSolid function
 void ledSolid(){
 
@@ -147,6 +186,37 @@ void ledSolid(){
     
   // take latchPin high to light up the LEDs
   digitalWrite(ledBlinkLatch, HIGH);  
+}
+
+
+void buttonRead(){
+  // button read function
+  
+  // read voltage levels of button ladder
+  btnVolts = analogRead(A3);
+  
+  // Debounce button for stability
+  if(timeNow > btnDebounceTimeB4 + btnDebounceDelay){
+    
+    // Check if a button has been pressed and change States
+    if(btnVolts < btnOne + btnTollerance){
+      ++ btnOneState;
+      btnDebounceTimeB4 = millis();
+      }
+  
+    if(btnVolts >= btnTwo - btnTollerance && btnVolts <= btnTwo + btnTollerance){
+      ++ btnTwoState;
+      btnDebounceTimeB4 = millis();
+    }
+  
+    // Make sure Button States don't exceed number of functions
+    if(btnOneState >= 3){
+      btnOneState = 1;
+    }
+    if(btnTwoState >= 3){
+      btnTwoState = 1;
+    }
+  }
 }
 
 
@@ -253,6 +323,7 @@ void rgbCrossfadeAuto(){
 
 // rgbCrossfadeMan function
 void rgbCrossfadeMan(){
+  
   // Read the Pot levels, divide by 4 for light levels
   redPot = analogRead(A0);
   redLed = redPot / 4;
