@@ -31,7 +31,7 @@ unsigned long btnOneFtnTwoTimeB4 = 0;
 unsigned long btnTwoFtnOneTimeB4 = 0;
 unsigned long btnTwoFtnTwoTimeB4 = 0;
 unsigned long btnDebounceTimeB4 = 0;
-unsigned long btnDebounceDelay = 200;
+unsigned long btnDebounceDelay = 400;
 
 // Initiate button variables and constants for buttonRead function
 int btnOne = 0;
@@ -42,6 +42,10 @@ const int btnTollerance = 50;
 // Initiate button State variables
 int btnOneState = 1;
 int btnTwoState = 1;
+
+// Initiate button LED Pins
+int blueBtnLedPin = 4;
+int greenBtnLedPin = 2;
 
 // Initiate ledFlicker pins for LEDs [Need to be PWM pins]
 const int ledFlicker1 = 3;
@@ -86,6 +90,9 @@ int bluLed;
 
 void setup(){
   
+  // Setup button LED Pins
+  pinMode(blueBtnLedPin, OUTPUT);
+  pinMode(greenBtnLedPin, OUTPUT);
   // Setup ledBlink pins to be outputs
   pinMode(ledBlinkLed, OUTPUT);
   pinMode(ledBlinkLatch, OUTPUT);
@@ -114,20 +121,24 @@ void loop(){
   // Button One mode selection and run ledBlink or ledSolid
   switch (btnOneState){
     case 1:
-    ledBlink();
+      rgbCrossfadeAuto();
+      digitalWrite(blueBtnLedPin, LOW);
     break;
     case 2:
-    ledSolid();
+      rgbCrossfadeMan();
+      digitalWrite(blueBtnLedPin, HIGH);
     break;
   }
   
   // Button Two mode selection and run rgbCrossfadeAuto or rgbCrossfadeMan
   switch (btnTwoState){
     case 1:
-    rgbCrossfadeAuto();
+      ledBlink();
+      digitalWrite(greenBtnLedPin, LOW);
     break;
     case 2:
-    rgbCrossfadeMan();
+      ledSolid();
+      digitalWrite(greenBtnLedPin, HIGH);
     break;
     }
 }
