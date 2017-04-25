@@ -105,6 +105,9 @@ void setup(){
 // Main Program, run functions. 
 void loop(){
   
+  // Run ledFlicker function
+  ledFlicker();
+  
   // Run button read function
   buttonRead();
   
