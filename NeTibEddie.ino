@@ -282,7 +282,7 @@ void ledFlicker(){
 // rgbCrossfadeAuto function
 void rgbCrossfadeAuto(){
   
-  // Check the time, see if it's time to change colour and change, record the time.
+  // Check the time.
   timeNow = millis();
   
   // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
@@ -333,11 +333,6 @@ void rgbCrossfadeAuto(){
        }
       }
     }
-
-    // Change rgbCrossfade Leds Colour
-    analogWrite(rgbRed, redLed);
-    analogWrite(rgbGrn, grnLed);
-    analogWrite(rgbBlu, bluLed);
 }
 
 
