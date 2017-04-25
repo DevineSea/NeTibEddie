@@ -118,7 +118,7 @@ void loop(){
   // Run button read function
   buttonRead();
   
-  // Button One mode selection and run ledBlink or ledSolid
+  // Button One mode selection and run rgbCrossfadeAuto or rgbCrossfadeMan
   switch (btnOneState){
     case 1:
       rgbCrossfadeAuto();
@@ -134,7 +134,7 @@ void loop(){
     break;
   }
   
-  // Button Two mode selection and run rgbCrossfadeAuto or rgbCrossfadeMan
+  // Button Two mode selection and run ledBlink or ledSolid
   switch (btnTwoState){
     case 1:
       ledBlink();
