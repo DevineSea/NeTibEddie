@@ -1,32 +1,8 @@
 /*
 N NeTibEddie vBeta
-
 Lighting effects controller for Nscale Model Railroad
 
-Primary Functions:
-ledBlink, xMas tree blinking effect, ON-OFF-ON-OFF [second set of lights opposite OFF-ON-OFF-ON] sort of thing.
-ledFlicker, Gas light/candle effect for lamps with randomized flickering.
-rgbCrossfade, Church Lights colour changing effects. Includes Button with Debounce & LED for mode indication.
-
-User Interfaces:
-Manual to Automatic modes for rgbCrossfade
-Red Green Blue Pot control of rgbCrossfade
-[Coming Soon] ledBlink mode changes
-
-ShiftOUT, addressing all LEDs for varying effects and flashing sequences
-Possition 8H        7G       6F      5E     4D    3C   2B  1A
-Decimal   10000000  1000000  100000  10000  1000  100  10  1
-Binary    128       64       32      16     8     4    2   1
-
-Map for address 1 = 85
-H G F E D C B A
-0 1 0 1 0 1 0 1
-
-Map for address 2 = 170
-H G F E D C B A
-1 0 1 0 1 0 1 0
-
-Sept 2015, David Wood
+April 2017, David Wood
 */
 
 // Initiate ledBlink pins for LEDs and Shift Register 74HC595
@@ -35,15 +11,41 @@ const int ledBlinkLatch = 8;
 const int ledBlinkClock = 7;
 const int ledBlinkData = 12;
 
-// Initiate ledBlink Variable for LED set 1 on 74HC595
+// Initiate ledBlink Variable for LEDs on 74HC595
 int ledBlinkAddress1 = 85;
 int ledBlinkAddress2 = 170;
+
+// Initiate ledSolid Variable for LEDs on 74HC595
+int ledSolidAddress1 = 255;
 
 // Initiate ledBlink Variables for Led State, time of last change and the Interval time to change states
 int ledBlinkState = LOW;
 unsigned long timeNow = millis();
 unsigned long ledBlinkTimeB4 = 0;
 unsigned long ledBlinkInterval = 1000;
+
+// Initiate timing variables and constants for buttonRead function
+unsigned long btnFtnInterval = 2000;
+unsigned long btnOneFtnOneTimeB4 = 0;
+unsigned long btnOneFtnTwoTimeB4 = 0;
+unsigned long btnTwoFtnOneTimeB4 = 0;
+unsigned long btnTwoFtnTwoTimeB4 = 0;
+unsigned long btnDebounceTimeB4 = 0;
+unsigned long btnDebounceDelay = 400;
+
+// Initiate button variables and constants for buttonRead function
+int btnOne = 0;
+int btnTwo = 145;
+int btnVolts = 1024;
+const int btnTollerance = 50;
+
+// Initiate button State variables
+int btnOneState = 1;
+int btnTwoState = 1;
+
+// Initiate button LED Pins
+int blueBtnLedPin = 4;
+int greenBtnLedPin = 2;
 
 // Initiate ledFlicker pins for LEDs [Need to be PWM pins]
 const int ledFlicker1 = 3;
@@ -86,22 +88,11 @@ int redLed;
 int grnLed;
 int bluLed;
 
-// Initiate DeBounce button Constants
-const int buttonPin = 2;    // the number of the pushbutton pin
-const int buttonLed = 4;      // the number of the LED pin
-
-// Initiate Variables for DeBounce
-int buttonLedState = LOW;   // the current state of the output pin
-int buttonState;             // the current reading from the input pin
-int lastButtonState = HIGH;   // the previous reading from the input pin
-
-// Initiate DeBounce variables for time of last change, and interval time to ignor noise
-long debounceTimeB4 = 0;
-long debounceDelay = 50;
-
-
 void setup(){
   
+  // Setup button LED Pins
+  pinMode(blueBtnLedPin, OUTPUT);
+  pinMode(greenBtnLedPin, OUTPUT);
   // Setup ledBlink pins to be outputs
   pinMode(ledBlinkLed, OUTPUT);
   pinMode(ledBlinkLatch, OUTPUT);
@@ -115,20 +106,49 @@ void setup(){
   pinMode(rgbRed, OUTPUT);
   pinMode(rgbGrn, OUTPUT);
   pinMode(rgbBlu, OUTPUT);
-  // Setup DeBounce pins
-  pinMode(buttonPin, INPUT);
-  pinMode(buttonLed, OUTPUT);
-  // set deBounce LED initial state
-  digitalWrite(buttonLed, buttonLedState);
 }
 
 
 // Main Program, run functions. 
 void loop(){
   
-  ledBlink();
+  // Run ledFlicker function
   ledFlicker();
-  rgbCrossfade();
+  
+  // Run button read function
+  buttonRead();
+  
+  // Button One mode selection and run rgbCrossfadeAuto or rgbCrossfadeMan
+  switch (btnOneState){
+    case 1:
+      rgbCrossfadeAuto();
+      digitalWrite(blueBtnLedPin, LOW);
+    break;
+    case 2:
+      rgbCrossfadeMan();
+      digitalWrite(blueBtnLedPin, HIGH);
+    break;
+    default:
+      rgbCrossfadeAuto();
+      digitalWrite(blueBtnLedPin, LOW);
+    break;
+  }
+  
+  // Button Two mode selection and run ledBlink or ledSolid
+  switch (btnTwoState){
+    case 1:
+      ledBlink();
+      digitalWrite(greenBtnLedPin, LOW);
+    break;
+    case 2:
+      ledSolid();
+      digitalWrite(greenBtnLedPin, HIGH);
+    break;
+    default:
+      ledBlink();
+      digitalWrite(greenBtnLedPin, LOW);
+    break;
+    }
 }
 
 
@@ -174,6 +194,54 @@ void ledBlink(){
 }
 
 
+// ledSolid function
+void ledSolid(){
+
+  // Light the tree top LED
+  digitalWrite(ledBlinkLed, HIGH);
+  
+  // take the latchPin low so the LEDs don't change while sending bits
+  digitalWrite(ledBlinkLatch, LOW);
+  
+  //ShiftOUT address 1
+  shiftOut(ledBlinkData, ledBlinkClock, MSBFIRST, ledSolidAddress1);
+    
+  // take latchPin high to light up the LEDs
+  digitalWrite(ledBlinkLatch, HIGH);  
+}
+
+
+void buttonRead(){
+  // button read function
+  
+  // read voltage levels of button ladder
+  btnVolts = analogRead(A3);
+  
+  // Debounce button for stability
+  if(timeNow > btnDebounceTimeB4 + btnDebounceDelay){
+    
+    // Check if a button has been pressed and change States
+    if(btnVolts < btnOne + btnTollerance){
+      ++ btnOneState;
+      btnDebounceTimeB4 = millis();
+      }
+  
+    if(btnVolts >= btnTwo - btnTollerance && btnVolts <= btnTwo + btnTollerance){
+      ++ btnTwoState;
+      btnDebounceTimeB4 = millis();
+    }
+  
+    // Make sure Button States don't exceed number of functions
+    if(btnOneState >= 3){
+      btnOneState = 1;
+    }
+    if(btnTwoState >= 3){
+      btnTwoState = 1;
+    }
+  }
+}
+
+
 // ledFlicker Function
 // Use random values, from 100 to 255, so Leds are between 40% and 100% duty cycle
 // Create random delay to slow flicker effect
@@ -211,50 +279,10 @@ void ledFlicker(){
 }
 
 
-// rgbCrossfade function
-void rgbCrossfade(){
+// rgbCrossfadeAuto function
+void rgbCrossfadeAuto(){
   
-  // DeBounce Button System
-  // read the state of the switch into a local variable:
-  int reading = digitalRead(buttonPin);
-
-  // check to see if you just pressed the button
-  // (i.e. the input went from LOW to HIGH),  and you've waited
-  // long enough since the last press to ignore any noise:  
-
-  // If the switch changed, due to noise or pressing:
-  if (reading != lastButtonState) {
-    // reset the debouncing timer
-    debounceTimeB4 = millis();
-  }
- 
-  if ((millis() - debounceTimeB4) > debounceDelay) {
-    // whatever the reading is at, it's been there for longer
-    // than the debounce delay, so take it as the actual current state:
-
-    // if the button state has changed:
-    if (reading != buttonState) {
-      buttonState = reading;
-
-      // only toggle the LED if the new button state is HIGH
-      if (buttonState == HIGH) {
-        buttonLedState = !buttonLedState;
-      }
-    }
-  }
- 
-  // set the LED:
-  digitalWrite(buttonLed, buttonLedState);
-
-  // save the reading.  Next time through the loop,
-  // it'll be the lastButtonState:
-  lastButtonState = reading;
-  
-  
-  // when the button is not active run automatic mode   
-  if (buttonLedState == LOW){
-  
-  // Check the time, see if it's time to change colour and change, record the time.
+  // Check the time.
   timeNow = millis();
   
   // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
@@ -267,10 +295,10 @@ void rgbCrossfade(){
     rgbBluNew = random(0, 255);
     }
     
-    // When Red LED colours have changed, gentally fade to the new colour
+    // When LED colours have changed, gentally fade to the new colour
   if (rgbRedOld != rgbRedNew || rgbGrnOld != rgbGrnNew || rgbBluOld != rgbBluNew){
     
-    // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
+    // If correct interval has passed fade towards new rgb LED colours, and reset the time
     if (timeNow - rgbFadeTimeB4 > rgbFadeInterval){
       rgbFadeTimeB4 = timeNow; 
       
@@ -305,21 +333,22 @@ void rgbCrossfade(){
        }
       }
     }
+}
+
+
+// rgbCrossfadeMan function
+void rgbCrossfadeMan(){
   
-  else {
-    // Read the Pot levels, divide by 4 for light levels
-    redPot = analogRead(A0);
-    redLed = redPot / 4;
-    grnPot = analogRead(A1);
-    grnLed = grnPot / 4;
-    bluPot = analogRead(A2);
-    bluLed = bluPot / 4;
-    
-    
-    // Change rgbCrossfade Leds Colour
-    analogWrite(rgbRed, redLed);
-    analogWrite(rgbGrn, grnLed);
-    analogWrite(rgbBlu, bluLed);
-  }
- }
+  // Read the Pot levels, divide by 4 for light levels
+  redPot = analogRead(A0);
+  redLed = redPot / 4;
+  grnPot = analogRead(A1);
+  grnLed = grnPot / 4;
+  bluPot = analogRead(A2);
+  bluLed = bluPot / 4;
+  
+  // Change rgbCrossfade Leds Colour
+  analogWrite(rgbRed, redLed);
+  analogWrite(rgbGrn, grnLed);
+  analogWrite(rgbBlu, bluLed);
 }
