@@ -128,6 +128,10 @@ void loop(){
       rgbCrossfadeMan();
       digitalWrite(blueBtnLedPin, HIGH);
     break;
+    default:
+      rgbCrossfadeAuto();
+      digitalWrite(blueBtnLedPin, LOW);
+    break;
   }
   
   // Button Two mode selection and run rgbCrossfadeAuto or rgbCrossfadeMan
@@ -139,6 +143,10 @@ void loop(){
     case 2:
       ledSolid();
       digitalWrite(greenBtnLedPin, HIGH);
+    break;
+    default:
+      ledBlink();
+      digitalWrite(greenBtnLedPin, LOW);
     break;
     }
 }
@@ -290,7 +298,7 @@ void rgbCrossfadeAuto(){
     // When LED colours have changed, gentally fade to the new colour
   if (rgbRedOld != rgbRedNew || rgbGrnOld != rgbGrnNew || rgbBluOld != rgbBluNew){
     
-    // If correct interval has passed asign new colours to the RGB LEDs, and reset the time
+    // If correct interval has passed fade towards new rgb LED colours, and reset the time
     if (timeNow - rgbFadeTimeB4 > rgbFadeInterval){
       rgbFadeTimeB4 = timeNow; 
       
